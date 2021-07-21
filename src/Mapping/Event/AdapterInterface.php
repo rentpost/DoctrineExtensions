@@ -17,8 +17,6 @@ interface AdapterInterface
 {
     /**
      * Set the eventargs
-     *
-     * @param \Doctrine\Common\EventArgs $args
      */
     public function setEventArgs(EventArgs $args);
 
@@ -50,7 +48,7 @@ interface AdapterInterface
     /**
      * Get the root object class, handles inheritance
      *
-     * @param \Doctrine\Common\Persistence\Mapping\ClassMetadata $meta
+     * @param \Doctrine\Persistence\Mapping\ClassMetadata $meta
      *
      * @return string
      */
@@ -59,7 +57,7 @@ interface AdapterInterface
     /**
      * Get used object manager
      *
-     * @return \Doctrine\Common\Persistence\ObjectManager
+     * @return \Doctrine\Persistence\ObjectManager
      */
     public function getObjectManager();
 
@@ -69,7 +67,7 @@ interface AdapterInterface
      * @param UnitOfWork $uow
      * @param object     $object
      *
-     * @return int The document state.
+     * @return int the document state
      */
     public function getObjectState($uow, $object);
 
@@ -86,7 +84,7 @@ interface AdapterInterface
     /**
      * Get the single identifier field name
      *
-     * @param \Doctrine\Common\Persistence\Mapping\ClassMetadata $meta
+     * @param \Doctrine\Persistence\Mapping\ClassMetadata $meta
      *
      * @return string
      */
@@ -96,7 +94,7 @@ interface AdapterInterface
      * Recompute the single object changeset from a UnitOfWork
      *
      * @param UnitOfWork                                         $uow
-     * @param \Doctrine\Common\Persistence\Mapping\ClassMetadata $meta
+     * @param \Doctrine\Persistence\Mapping\ClassMetadata $meta
      * @param object                                             $object
      *
      * @return void
@@ -146,7 +144,7 @@ interface AdapterInterface
      * Clears the property changeset of the object with the given OID.
      *
      * @param UnitOfWork $uow
-     * @param string     $oid The object's OID.
+     * @param string     $oid the object's OID
      */
     public function clearObjectChangeSet($uow, $oid);
 }

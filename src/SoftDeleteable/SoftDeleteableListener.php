@@ -2,9 +2,9 @@
 
 namespace Gedmo\SoftDeleteable;
 
-use Gedmo\Mapping\MappedEventSubscriber;
 use Doctrine\Common\EventArgs;
 use Doctrine\ODM\MongoDB\UnitOfWork as MongoDBUnitOfWork;
+use Gedmo\Mapping\MappedEventSubscriber;
 
 /**
  * SoftDeleteable listener
@@ -20,14 +20,14 @@ class SoftDeleteableListener extends MappedEventSubscriber
      *
      * @var string
      */
-    const PRE_SOFT_DELETE = "preSoftDelete";
+    const PRE_SOFT_DELETE = 'preSoftDelete';
 
     /**
      * Post soft-delete event
      *
      * @var string
      */
-    const POST_SOFT_DELETE = "postSoftDelete";
+    const POST_SOFT_DELETE = 'postSoftDelete';
 
     /**
      * Objects soft-deleted on flush.
@@ -41,18 +41,16 @@ class SoftDeleteableListener extends MappedEventSubscriber
      */
     public function getSubscribedEvents()
     {
-        return array(
+        return [
             'loadClassMetadata',
             'onFlush',
             'postFlush',
-        );
+        ];
     }
 
     /**
      * If it's a SoftDeleteable object, update the "deletedAt" field
      * and skip the removal of the object
-     *
-     * @param EventArgs $args
      *
      * @return void
      */
@@ -71,7 +69,7 @@ class SoftDeleteableListener extends MappedEventSubscriber
             if (isset($config['softDeleteable']) && $config['softDeleteable']) {
                 $reflProp = $meta->getReflectionProperty($config['fieldName']);
                 $oldValue = $reflProp->getValue($object);
-                
+
                 // Determine the field type in order to set the date to the respective value
                 $mapping = $meta->getFieldMapping($config['fieldName']);
                 if (isset($mapping['type']) && $mapping['type'] === 'integer') {
@@ -84,8 +82,7 @@ class SoftDeleteableListener extends MappedEventSubscriber
                     $date = new \DateTime();
                 }
 
-                // Remove `$oldValue instanceof \DateTime` check when PHP version is bumped to >=5.5
-                if (isset($config['hardDelete']) && $config['hardDelete'] && ($oldValue instanceof \DateTime || $oldValue instanceof \DateTimeInterface) && $oldValue <= $date) {
+                if (isset($config['hardDelete']) && $config['hardDelete'] && $oldValue instanceof \DateTimeInterface && $oldValue <= $date) {
                     continue; // want to hard delete
                 }
 
@@ -94,7 +91,6 @@ class SoftDeleteableListener extends MappedEventSubscriber
                     $ea->createLifecycleEventArgsInstance($object, $om)
                 );
 
-
                 $reflProp->setValue($object, $date);
 
                 $om->persist($object);
@@ -102,9 +98,9 @@ class SoftDeleteableListener extends MappedEventSubscriber
                 if ($uow instanceof MongoDBUnitOfWork && !method_exists($uow, 'scheduleExtraUpdate')) {
                     $ea->recomputeSingleObjectChangeSet($uow, $meta, $object);
                 } else {
-                    $uow->scheduleExtraUpdate($object, array(
-                        $config['fieldName'] => array($oldValue, $date),
-                    ));
+                    $uow->scheduleExtraUpdate($object, [
+                        $config['fieldName'] => [$oldValue, $date],
+                    ]);
                 }
 
                 $evm->dispatchEvent(
@@ -139,8 +135,6 @@ class SoftDeleteableListener extends MappedEventSubscriber
     /**
      * Maps additional metadata
      *
-     * @param EventArgs $eventArgs
-     *
      * @return void
      */
     public function loadClassMetadata(EventArgs $eventArgs)
@@ -150,7 +144,7 @@ class SoftDeleteableListener extends MappedEventSubscriber
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function getNamespace()
     {

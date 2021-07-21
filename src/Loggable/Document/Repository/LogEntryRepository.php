@@ -2,11 +2,12 @@
 
 namespace Gedmo\Loggable\Document\Repository;
 
+use Doctrine\MongoDB\Cursor;
+use Doctrine\ODM\MongoDB\Iterator\Iterator;
+use Doctrine\ODM\MongoDB\Repository\DocumentRepository;
 use Gedmo\Loggable\Document\LogEntry;
-use Gedmo\Tool\Wrapper\MongoDocumentWrapper;
 use Gedmo\Loggable\LoggableListener;
-use Doctrine\ODM\MongoDB\DocumentRepository;
-use Doctrine\ODM\MongoDB\Cursor;
+use Gedmo\Tool\Wrapper\MongoDocumentWrapper;
 
 /**
  * The LogEntryRepository has some useful functions
@@ -44,9 +45,10 @@ class LogEntryRepository extends DocumentRepository
         $q = $qb->getQuery();
 
         $result = $q->execute();
-        if ($result instanceof Cursor) {
+        if ($result instanceof Cursor || $result instanceof Iterator) {
             $result = $result->toArray();
         }
+
         return $result;
     }
 
@@ -57,7 +59,7 @@ class LogEntryRepository extends DocumentRepository
      * persist and flush the $document.
      *
      * @param object $document
-     * @param integer $version
+     * @param int    $version
      *
      * @throws \Gedmo\Exception\UnexpectedValueException
      *
@@ -77,11 +79,11 @@ class LogEntryRepository extends DocumentRepository
         $q = $qb->getQuery();
 
         $logs = $q->execute();
-        if ($logs instanceof Cursor) {
+        if ($logs instanceof Cursor || $logs instanceof Iterator) {
             $logs = $logs->toArray();
         }
         if ($logs) {
-            $data = array();
+            $data = [];
             while (($log = array_shift($logs))) {
                 $data = array_merge($data, $log->getData());
             }
@@ -95,7 +97,6 @@ class LogEntryRepository extends DocumentRepository
      * Fills a documents versioned fields with data
      *
      * @param object $document
-     * @param array $data
      */
     protected function fillDocument($document, array $data)
     {
@@ -156,6 +157,7 @@ class LogEntryRepository extends DocumentRepository
                 throw new \Gedmo\Exception\RuntimeException('The loggable listener could not be found');
             }
         }
+
         return $this->listener;
     }
 }

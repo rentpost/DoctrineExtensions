@@ -2,12 +2,8 @@
 
 namespace Gedmo\Blameable;
 
-use Doctrine\Common\NotifyPropertyChanged;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Gedmo\AbstractTrackingListener;
 use Gedmo\Exception\InvalidArgumentException;
-use Gedmo\Timestampable\TimestampableListener;
-use Gedmo\Blameable\Mapping\Event\BlameableAdapter;
 
 /**
  * The Blameable listener handles the update of
@@ -86,7 +82,7 @@ class BlameableListener extends AbstractTrackingListener
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     protected function getNamespace()
     {

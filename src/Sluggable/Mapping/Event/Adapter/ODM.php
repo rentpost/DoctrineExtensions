@@ -2,10 +2,12 @@
 
 namespace Gedmo\Sluggable\Mapping\Event\Adapter;
 
+use Doctrine\MongoDB\Cursor;
+use Doctrine\ODM\MongoDB\Iterator\Iterator;
 use Gedmo\Mapping\Event\Adapter\ODM as BaseAdapterODM;
-use Doctrine\ODM\MongoDB\Cursor;
 use Gedmo\Sluggable\Mapping\Event\SluggableAdapter;
 use Gedmo\Tool\Wrapper\AbstractWrapper;
+use MongoDB\BSON\Regex;
 
 /**
  * Doctrine event adapter for ODM adapted
@@ -17,7 +19,7 @@ use Gedmo\Tool\Wrapper\AbstractWrapper;
 final class ODM extends BaseAdapterODM implements SluggableAdapter
 {
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getSimilarSlugs($object, $meta, array $config, $slug)
     {
@@ -27,7 +29,7 @@ final class ODM extends BaseAdapterODM implements SluggableAdapter
         if (($identifier = $wrapped->getIdentifier()) && !$meta->isIdentifier($config['slug'])) {
             $qb->field($meta->identifier)->notEqual($identifier);
         }
-        $qb->field($config['slug'])->equals(new \MongoRegex('/^'.preg_quote($slug, '/').'/'));
+        $qb->field($config['slug'])->equals(new Regex('^'.preg_quote($slug, '/')));
 
         // use the unique_base to restrict the uniqueness check
         if ($config['unique'] && isset($config['unique_base'])) {
@@ -44,7 +46,7 @@ final class ODM extends BaseAdapterODM implements SluggableAdapter
         $q->setHydrate(false);
 
         $result = $q->execute();
-        if ($result instanceof Cursor) {
+        if ($result instanceof Cursor || $result instanceof Iterator) {
             $result = $result->toArray();
         }
 
@@ -55,7 +57,7 @@ final class ODM extends BaseAdapterODM implements SluggableAdapter
      * This query can cause some data integrity failures since it does not
      * execute automatically
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function replaceRelative($object, array $config, $target, $replacement)
     {
@@ -91,7 +93,7 @@ final class ODM extends BaseAdapterODM implements SluggableAdapter
      * This query can cause some data integrity failures since it does not
      * execute atomically
      *
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function replaceInverseRelative($object, array $config, $target, $replacement)
     {
