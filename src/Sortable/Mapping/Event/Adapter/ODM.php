@@ -2,9 +2,9 @@
 
 namespace Gedmo\Sortable\Mapping\Event\Adapter;
 
+use Doctrine\Common\Util\ClassUtils;
 use Gedmo\Mapping\Event\Adapter\ODM as BaseAdapterODM;
 use Gedmo\Sortable\Mapping\Event\SortableAdapter;
-use Doctrine\Common\Util\ClassUtils;
 
 /**
  * Doctrine event adapter for ODM adapted
@@ -44,8 +44,7 @@ final class ODM extends BaseAdapterODM implements SortableAdapter
         $delta = array_map('intval', $delta);
 
         $qb = $dm->createQueryBuilder($config['useObjectClass']);
-        $qb->update();
-        $qb->multiple(true);
+        $qb->updateMany();
         $qb->field($config['position'])->inc($delta['delta']);
         $qb->field($config['position'])->gte($delta['start']);
         if ($delta['stop'] > 0) {

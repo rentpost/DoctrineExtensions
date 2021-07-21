@@ -2,10 +2,12 @@
 
 namespace Gedmo\Tree\Strategy\ODM\MongoDB;
 
-use Gedmo\Tree\Strategy\AbstractMaterializedPath;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Gedmo\Mapping\Event\AdapterInterface;
 use Gedmo\Tool\Wrapper\AbstractWrapper;
+use Gedmo\Tree\Strategy\AbstractMaterializedPath;
+use MongoDB\BSON\Regex;
+use MongoDB\BSON\UTCDateTime;
 
 /**
  * This strategy makes tree using materialized path strategy
@@ -27,7 +29,7 @@ class MaterializedPath extends AbstractMaterializedPath
         // Remove node's children
         $results = $om->createQueryBuilder()
             ->find($meta->name)
-            ->field($config['path'])->equals(new \MongoRegex('/^'.preg_quote($wrapped->getPropertyValue($config['path'])).'.?+/'))
+            ->field($config['path'])->equals(new Regex('^'.preg_quote($wrapped->getPropertyValue($config['path'])).'.?+'))
             ->getQuery()
             ->execute();
 
@@ -43,7 +45,7 @@ class MaterializedPath extends AbstractMaterializedPath
     {
         return $om->createQueryBuilder()
             ->find($meta->name)
-            ->field($config['path'])->equals(new \MongoRegex('/^'.preg_quote($originalPath).'.+/'))
+            ->field($config['path'])->equals(new Regex('^'.preg_quote($originalPath).'.+'))
             ->sort($config['path'], 'asc')      // This may save some calls to updateNode
             ->getQuery()
             ->execute();
@@ -61,11 +63,11 @@ class MaterializedPath extends AbstractMaterializedPath
             $config = $this->listener->getConfiguration($om, $meta->name);
             $lockTimeProp = $meta->getReflectionProperty($config['lock_time']);
             $lockTimeProp->setAccessible(true);
-            $lockTimeValue = new \MongoDate();
+            $lockTimeValue = new UTCDateTime();
             $lockTimeProp->setValue($root, $lockTimeValue);
-            $changes = array(
-                $config['lock_time'] => array(null, $lockTimeValue),
-            );
+            $changes = [
+                $config['lock_time'] => [null, $lockTimeValue],
+            ];
 
             $ea->recomputeSingleObjectChangeSet($uow, $meta, $root);
         }
@@ -85,9 +87,9 @@ class MaterializedPath extends AbstractMaterializedPath
             $lockTimeProp->setAccessible(true);
             $lockTimeValue = null;
             $lockTimeProp->setValue($root, $lockTimeValue);
-            $changes = array(
-                $config['lock_time'] => array(null, null),
-            );
+            $changes = [
+                $config['lock_time'] => [null, null],
+            ];
 
             $ea->recomputeSingleObjectChangeSet($uow, $meta, $root);
 

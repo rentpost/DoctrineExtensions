@@ -2,30 +2,32 @@
 
 namespace Gedmo\Uploadable;
 
-use Tool\BaseTestCaseORM;
 use Doctrine\Common\EventManager;
-use Uploadable\Fixture\Entity\Image;
+use Gedmo\Uploadable\FileInfo\FileInfoArray;
+use Gedmo\Uploadable\Stub\MimeTypeGuesserStub;
+use Gedmo\Uploadable\Stub\UploadableListenerStub;
+use Tool\BaseTestCaseORM;
 use Uploadable\Fixture\Entity\Article;
 use Uploadable\Fixture\Entity\File;
-use Uploadable\Fixture\Entity\FileWithoutPath;
-use Uploadable\Fixture\Entity\FileWithSha1Name;
-use Uploadable\Fixture\Entity\FileWithAlphanumericName;
-use Uploadable\Fixture\Entity\FileWithCustomFilenameGenerator;
 use Uploadable\Fixture\Entity\FileAppendNumber;
 use Uploadable\Fixture\Entity\FileAppendNumberRelative;
-use Uploadable\Fixture\Entity\FileWithMaxSize;
 use Uploadable\Fixture\Entity\FileWithAllowedTypes;
+use Uploadable\Fixture\Entity\FileWithAlphanumericName;
+use Uploadable\Fixture\Entity\FileWithCustomFilenameGenerator;
 use Uploadable\Fixture\Entity\FileWithDisallowedTypes;
-use Gedmo\Uploadable\Stub\UploadableListenerStub;
-use Gedmo\Uploadable\Stub\MimeTypeGuesserStub;
-use Gedmo\Uploadable\FileInfo\FileInfoArray;
+use Uploadable\Fixture\Entity\FileWithMaxSize;
+use Uploadable\Fixture\Entity\FileWithoutPath;
+use Uploadable\Fixture\Entity\FileWithSha1Name;
+use Uploadable\Fixture\Entity\Image;
 
 /**
  * These are tests for Uploadable behavior
  *
  * @author Gustavo Falco <comfortablynumb84@gmail.com>
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
- * @link http://www.gediminasm.org
+ *
+ * @see http://www.gediminasm.org
+ *
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 class UploadableEntityTest extends BaseTestCaseORM
@@ -66,7 +68,7 @@ class UploadableEntityTest extends BaseTestCaseORM
     private $testFileSize;
     private $testFileMimeType;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -100,10 +102,10 @@ class UploadableEntityTest extends BaseTestCaseORM
 
         if (!is_dir($this->destinationTestDir)) {
             mkdir($this->destinationTestDir);
-        };
+        }
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->clearFilesAndDirectories();
     }
@@ -251,7 +253,7 @@ class UploadableEntityTest extends BaseTestCaseORM
 
         $this->em->flush();
 
-        $art = $artRepo->findOneByTitle('Test');
+        $art = $artRepo->findOneBy(['title' => 'Test']);
         $files = $art->getFiles();
         $file1Path = $file1->getPath().'/'.$fileInfo['name'];
         $file2Path = $file2->getPath().'/'.$fileInfo['name'];
@@ -262,11 +264,9 @@ class UploadableEntityTest extends BaseTestCaseORM
         $this->assertPathEquals($file3Path, $files[2]->getFilePath());
     }
 
-    /**
-     * @expectedException Gedmo\Exception\UploadableNoPathDefinedException
-     */
     public function testNoPathDefinedOnEntityOrListenerThrowsException()
     {
+        $this->expectException('Gedmo\Exception\UploadableNoPathDefinedException');
         $file = new FileWithoutPath();
 
         $fileInfo = $this->generateUploadedFile();
@@ -409,11 +409,9 @@ class UploadableEntityTest extends BaseTestCaseORM
         $this->assertPathEquals($filePath, $file->getFilePath());
     }
 
-    /**
-     * @expectedException Gedmo\Exception\UploadableFileAlreadyExistsException
-     */
     public function testFileAlreadyExistsException()
     {
+        $this->expectException('Gedmo\Exception\UploadableFileAlreadyExistsException');
         $file = new Image();
         $file->setTitle('test');
         $fileInfo = $this->generateUploadedFile('image', $this->testFileWithoutExt, $this->testFilenameWithoutExt);
@@ -488,11 +486,9 @@ class UploadableEntityTest extends BaseTestCaseORM
         chdir($currDir);
     }
 
-    /**
-     * @expectedException Gedmo\Exception\UploadableUploadException
-     */
     public function test_moveFile_ifUploadedFileCantBeMovedThrowException()
     {
+        $this->expectException('Gedmo\Exception\UploadableUploadException');
         $this->listener->returnFalseOnMoveUploadedFile = true;
 
         $file = new Image();
@@ -505,27 +501,21 @@ class UploadableEntityTest extends BaseTestCaseORM
         $this->em->flush();
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function test_addEntityFileInfo_ifFileInfoIsNotValidThrowException()
     {
+        $this->expectException('RuntimeException');
         $this->listener->addEntityFileInfo(new Image(), 'invalidFileInfo');
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function test_getEntityFileInfo_ifTheresNoFileInfoForEntityThrowException()
     {
+        $this->expectException('RuntimeException');
         $this->listener->getEntityFileInfo(new Image());
     }
 
-    /**
-     * @expectedException Gedmo\Exception\UploadableMaxSizeException
-     */
     public function test_fileExceedingMaximumAllowedSizeThrowsException()
     {
+        $this->expectException('Gedmo\Exception\UploadableMaxSizeException');
         // We set the default path on the listener
         $this->listener->setDefaultPath($this->destinationTestDir);
 
@@ -545,7 +535,7 @@ class UploadableEntityTest extends BaseTestCaseORM
 
         $file = new FileWithMaxSize();
         $size = 0.0001;
-        $fileInfo = $this->generateUploadedFile('image', false, false, array('size' => $size));
+        $fileInfo = $this->generateUploadedFile('image', false, false, ['size' => $size]);
 
         $this->listener->addEntityFileInfo($file, $fileInfo);
 
@@ -557,11 +547,9 @@ class UploadableEntityTest extends BaseTestCaseORM
         $this->assertEquals($size, $file->getFileSize());
     }
 
-    /**
-     * @expectedException Gedmo\Exception\UploadableCouldntGuessMimeTypeException
-     */
     public function test_ifMimeTypeGuesserCantResolveTypeThrowException()
     {
+        $this->expectException('Gedmo\Exception\UploadableCouldntGuessMimeTypeException');
         // We set the default path on the listener
         $this->listener->setDefaultPath($this->destinationTestDir);
         $this->listener->setMimeTypeGuesser(new MimeTypeGuesserStub(null));
@@ -575,11 +563,9 @@ class UploadableEntityTest extends BaseTestCaseORM
         $this->em->flush();
     }
 
-    /**
-     * @expectedException Gedmo\Exception\UploadableInvalidMimeTypeException
-     */
     public function test_allowedTypesOption_ifMimeTypeIsInvalidThrowException()
     {
+        $this->expectException('Gedmo\Exception\UploadableInvalidMimeTypeException');
         // We set the default path on the listener
         $this->listener->setDefaultPath($this->destinationTestDir);
         $this->listener->setMimeTypeGuesser(new MimeTypeGuesserStub('text/css'));
@@ -593,11 +579,9 @@ class UploadableEntityTest extends BaseTestCaseORM
         $this->em->flush();
     }
 
-    /**
-     * @expectedException Gedmo\Exception\UploadableInvalidMimeTypeException
-     */
     public function test_disallowedTypesOption_ifMimeTypeIsInvalidThrowException()
     {
+        $this->expectException('Gedmo\Exception\UploadableInvalidMimeTypeException');
         // We set the default path on the listener
         $this->listener->setDefaultPath($this->destinationTestDir);
         $this->listener->setMimeTypeGuesser(new MimeTypeGuesserStub('text/css'));
@@ -612,11 +596,11 @@ class UploadableEntityTest extends BaseTestCaseORM
     }
 
     /**
-     * @expectedException Gedmo\Exception\InvalidArgumentException
      * @dataProvider invalidFileInfoClassesProvider
      */
     public function test_setDefaultFileInfoClass_throwExceptionIfInvalidClassArePassed($class)
     {
+        $this->expectException('Gedmo\Exception\InvalidArgumentException');
         $this->listener->setDefaultFileInfoClass($class);
     }
 
@@ -661,41 +645,41 @@ class UploadableEntityTest extends BaseTestCaseORM
     // Data Providers
     public function invalidFileInfoClassesProvider()
     {
-        return array(
-            array(''),
-            array(false),
-            array(null),
-            array('FakeFileInfo'),
-            array(array()),
-            array(new \DateTime()),
-        );
+        return [
+            [''],
+            [false],
+            [null],
+            ['FakeFileInfo'],
+            [[]],
+            [new \DateTime()],
+        ];
     }
 
     public function uploadExceptionsProvider()
     {
-        return array(
-            array(1, 'Gedmo\Exception\UploadableIniSizeException'),
-            array(2, 'Gedmo\Exception\UploadableFormSizeException'),
-            array(3, 'Gedmo\Exception\UploadablePartialException'),
-            array(4, 'Gedmo\Exception\UploadableNoFileException'),
-            array(6, 'Gedmo\Exception\UploadableNoTmpDirException'),
-            array(7, 'Gedmo\Exception\UploadableCantWriteException'),
-            array(8, 'Gedmo\Exception\UploadableExtensionException'),
-            array(999, 'Gedmo\Exception\UploadableUploadException'),
-        );
+        return [
+            [1, 'Gedmo\Exception\UploadableIniSizeException'],
+            [2, 'Gedmo\Exception\UploadableFormSizeException'],
+            [3, 'Gedmo\Exception\UploadablePartialException'],
+            [4, 'Gedmo\Exception\UploadableNoFileException'],
+            [6, 'Gedmo\Exception\UploadableNoTmpDirException'],
+            [7, 'Gedmo\Exception\UploadableCantWriteException'],
+            [8, 'Gedmo\Exception\UploadableExtensionException'],
+            [999, 'Gedmo\Exception\UploadableUploadException'],
+        ];
     }
 
     // Util
 
-    private function generateUploadedFile($index = 'image', $filePath = false, $filename = false, array $info = array())
+    private function generateUploadedFile($index = 'image', $filePath = false, $filename = false, array $info = [])
     {
-        $defaultInfo = array(
-            'tmp_name'          => !$filePath ? $this->testFile : $filePath,
-            'name'              => !$filename ? $this->testFilename : $filename,
-            'size'              => $this->testFileSize,
-            'type'              => $this->testFileMimeType,
-            'error'             => 0,
-        );
+        $defaultInfo = [
+            'tmp_name' => !$filePath ? $this->testFile : $filePath,
+            'name' => !$filename ? $this->testFilename : $filename,
+            'size' => $this->testFileSize,
+            'type' => $this->testFileMimeType,
+            'error' => 0,
+        ];
 
         $info = array_merge($defaultInfo, $info);
 
@@ -704,7 +688,7 @@ class UploadableEntityTest extends BaseTestCaseORM
 
     protected function getUsedEntityFixtures()
     {
-        return array(
+        return [
             self::IMAGE_CLASS,
             self::ARTICLE_CLASS,
             self::FILE_CLASS,
@@ -717,7 +701,7 @@ class UploadableEntityTest extends BaseTestCaseORM
             self::FILE_WITH_MAX_SIZE_CLASS,
             self::FILE_WITH_ALLOWED_TYPES_CLASS,
             self::FILE_WITH_DISALLOWED_TYPES_CLASS,
-        );
+        ];
     }
 
     private function clearFilesAndDirectories()

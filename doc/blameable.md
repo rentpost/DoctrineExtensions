@@ -46,8 +46,8 @@ Content:
 
 ## Setup and autoloading
 
-Read the [documentation](http://github.com/Atlantic18/DoctrineExtensions/blob/master/doc/annotations.md#em-setup)
-or check the [example code](http://github.com/Atlantic18/DoctrineExtensions/tree/master/example)
+Read the [documentation](http://github.com/Atlantic18/DoctrineExtensions/tree/main/doc/annotations.md#em-setup)
+or check the [example code](http://github.com/Atlantic18/DoctrineExtensions/tree/main/example)
 on how to setup and use the extensions in most optimized way.
 
 <a name="entity-mapping"></a>
@@ -212,7 +212,7 @@ class Article
     /**
      * @var User $contentChangedBy
      *
-     * @Gedmo\Blameable(on="change", fields={"title", "body"})
+     * @Gedmo\Blameable(on="change", field={"title", "body"})
      * @ORM\ManyToOne(targetEntity="Path\To\Entity\User")
      * @ORM\JoinColumn(name="content_changed_by", referencedColumnName="id")
      */

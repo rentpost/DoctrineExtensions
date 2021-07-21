@@ -12,34 +12,36 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoODM;
 abstract class AbstractPersonalTranslation
 {
     /**
-     * @var integer $id
+     * @var int
      *
      * @MongoODM\Id
      */
     protected $id;
 
     /**
-     * @var string $locale
+     * @var string
      *
      * @MongoODM\Field(type="string")
      */
     protected $locale;
 
     /**
-     * Related entity with ManyToOne relation
+     * Related document with ManyToOne relation
      * must be mapped by user
+     *
+     * @var object
      */
     protected $object;
 
     /**
-     * @var string $field
+     * @var string
      *
      * @MongoODM\Field(type="string")
      */
     protected $field;
 
     /**
-     * @var string $content
+     * @var string
      *
      * @MongoODM\Field(type="string")
      */
@@ -48,7 +50,7 @@ abstract class AbstractPersonalTranslation
     /**
      * Get id
      *
-     * @return integer $id
+     * @return int $id
      */
     public function getId()
     {

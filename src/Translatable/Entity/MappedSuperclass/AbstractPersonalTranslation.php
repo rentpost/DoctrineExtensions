@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class AbstractPersonalTranslation
 {
     /**
-     * @var integer $id
+     * @var int
      *
      * @ORM\Column(type="integer")
      * @ORM\Id
@@ -21,14 +21,14 @@ abstract class AbstractPersonalTranslation
     protected $id;
 
     /**
-     * @var string $locale
+     * @var string
      *
      * @ORM\Column(type="string", length=8)
      */
     protected $locale;
 
     /**
-     * @var string $field
+     * @var string
      *
      * @ORM\Column(type="string", length=32)
      */
@@ -37,11 +37,13 @@ abstract class AbstractPersonalTranslation
     /**
      * Related entity with ManyToOne relation
      * must be mapped by user
+     *
+     * @var object
      */
     protected $object;
 
     /**
-     * @var string $content
+     * @var string
      *
      * @ORM\Column(type="text", nullable=true)
      */
@@ -50,7 +52,7 @@ abstract class AbstractPersonalTranslation
     /**
      * Get id
      *
-     * @return integer $id
+     * @return int $id
      */
     public function getId()
     {

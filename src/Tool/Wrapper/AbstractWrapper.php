@@ -3,10 +3,10 @@
 namespace Gedmo\Tool\Wrapper;
 
 use Doctrine\ODM\MongoDB\DocumentManager;
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Tool\WrapperInterface;
+use Doctrine\Persistence\ObjectManager;
 use Gedmo\Exception\UnsupportedObjectManagerException;
+use Gedmo\Tool\WrapperInterface;
 
 /**
  * Wraps entity or proxy for more convenient
@@ -34,7 +34,7 @@ abstract class AbstractWrapper implements WrapperInterface
     /**
      * Object manager instance
      *
-     * @var \Doctrine\Common\Persistence\ObjectManager
+     * @var \Doctrine\Persistence\ObjectManager
      */
     protected $om;
 
@@ -48,8 +48,7 @@ abstract class AbstractWrapper implements WrapperInterface
     /**
      * Wrap object factory method
      *
-     * @param object        $object
-     * @param ObjectManager $om
+     * @param object $object
      *
      * @throws \Gedmo\Exception\UnsupportedObjectManagerException
      *
@@ -67,11 +66,11 @@ abstract class AbstractWrapper implements WrapperInterface
 
     public static function clear()
     {
-        self::$wrappedObjectReferences = array();
+        self::$wrappedObjectReferences = [];
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getObject()
     {
@@ -79,7 +78,7 @@ abstract class AbstractWrapper implements WrapperInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function getMetadata()
     {
@@ -87,7 +86,7 @@ abstract class AbstractWrapper implements WrapperInterface
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function populate(array $data)
     {

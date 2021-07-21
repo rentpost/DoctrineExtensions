@@ -7,36 +7,35 @@ namespace Gedmo\Uploadable\Mapping;
  *
  * @author Gustavo Falco <comfortablynumb84@gmail.com>
  * @author Gediminas Morkevicius <gediminas.morkevicius@gmail.com>
- * @link http://www.gediminasm.org
+ *
+ * @see http://www.gediminasm.org
+ *
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
 class ValidatorTest extends \PHPUnit\Framework\TestCase
 {
     protected $meta;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->meta = $this->getMockBuilder('Doctrine\ORM\Mapping\ClassMetadata')
-            ->setConstructorArgs(array('', null))
+            ->setConstructorArgs(['', null])
             ->getMock();
 
         Validator::$enableMimeTypesConfigException = false;
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         Validator::$enableMimeTypesConfigException = true;
     }
 
-    /**
-     * @expectedException \Gedmo\Exception\InvalidMappingException
-     */
     public function test_validateField_ifFieldIsNotOfAValidTypeThrowException()
     {
+        $this->expectException('Gedmo\Exception\InvalidMappingException');
         $this->meta->expects($this->once())
             ->method('getFieldMapping')
-            ->will($this->returnValue(array('type' => 'someType')));
+            ->will($this->returnValue(['type' => 'someType']));
 
         Validator::validateField(
             $this->meta,
@@ -46,11 +45,9 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @expectedException \Gedmo\Exception\UploadableInvalidPathException
-     */
     public function test_validatePath_ifPathIsNotAStringOrIsAnEmptyStringThrowException()
     {
+        $this->expectException('Gedmo\Exception\UploadableInvalidPathException');
         Validator::validatePath('');
     }
 
@@ -63,26 +60,22 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         rmdir(dirname($dir));
     }
 
-    /**
-     * @expectedException \Gedmo\Exception\InvalidMappingException
-     */
     public function test_validateConfiguration_ifNeitherFilePathFieldNorFileNameFieldIsNotDefinedThrowException()
     {
-        $config = array('filePathField' => false, 'fileNameField' => false);
+        $this->expectException('Gedmo\Exception\InvalidMappingException');
+        $config = ['filePathField' => false, 'fileNameField' => false];
 
         Validator::validateConfiguration($this->meta, $config);
     }
 
-    /**
-     * @expectedException \Gedmo\Exception\InvalidMappingException
-     */
     public function test_validateConfiguration_ifPathMethodIsNotAValidMethodThrowException()
     {
+        $this->expectException('Gedmo\Exception\InvalidMappingException');
         $this->meta->expects($this->once())
             ->method('getReflectionClass')
             ->will($this->returnValue(new \ReflectionClass(new FakeEntity())));
 
-        $config = array('filePathField' => 'someField', 'pathMethod' => 'invalidMethod');
+        $config = ['filePathField' => 'someField', 'pathMethod' => 'invalidMethod'];
 
         Validator::validateConfiguration(
             $this->meta,
@@ -90,16 +83,14 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @expectedException \Gedmo\Exception\InvalidMappingException
-     */
     public function test_validateConfiguration_ifCallbackMethodIsNotAValidMethodThrowException()
     {
+        $this->expectException('Gedmo\Exception\InvalidMappingException');
         $this->meta->expects($this->once())
             ->method('getReflectionClass')
             ->will($this->returnValue(new \ReflectionClass(new FakeEntity())));
 
-        $config = array('filePathField' => 'someField', 'pathMethod' => '', 'callback' => 'invalidMethod');
+        $config = ['filePathField' => 'someField', 'pathMethod' => '', 'callback' => 'invalidMethod'];
 
         Validator::validateConfiguration(
             $this->meta,
@@ -107,30 +98,28 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @expectedException \Gedmo\Exception\InvalidMappingException
-     */
     public function test_validateConfiguration_ifFilenameGeneratorValueIsNotValidThrowException()
     {
+        $this->expectException('Gedmo\Exception\InvalidMappingException');
         $this->meta->expects($this->once())
             ->method('getReflectionClass')
             ->will($this->returnValue(new \ReflectionClass(new FakeEntity())));
         $this->meta->expects($this->any())
             ->method('getFieldMapping')
-            ->will($this->returnValue(array('type' => 'someType')));
+            ->will($this->returnValue(['type' => 'someType']));
 
-        $config = array(
+        $config = [
             'fileMimeTypeField' => '',
-            'fileSizeField'     => '',
-            'fileNameField'     => '',
-            'filePathField'     => 'someField',
-            'pathMethod'        => '',
-            'callback'          => '',
+            'fileSizeField' => '',
+            'fileNameField' => '',
+            'filePathField' => 'someField',
+            'pathMethod' => '',
+            'callback' => '',
             'filenameGenerator' => 'invalidClass',
-            'maxSize'           => 0,
-            'allowedTypes'      => '',
-            'disallowedTypes'   => '',
-        );
+            'maxSize' => 0,
+            'allowedTypes' => '',
+            'disallowedTypes' => '',
+        ];
 
         Validator::validateConfiguration(
             $this->meta,
@@ -138,30 +127,28 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @expectedException \Gedmo\Exception\InvalidMappingException
-     */
     public function test_validateConfiguration_ifFilenameGeneratorValueIsValidButDoesntImplementNeededInterfaceThrowException()
     {
+        $this->expectException('Gedmo\Exception\InvalidMappingException');
         $this->meta->expects($this->once())
             ->method('getReflectionClass')
             ->will($this->returnValue(new \ReflectionClass(new FakeEntity())));
         $this->meta->expects($this->any())
             ->method('getFieldMapping')
-            ->will($this->returnValue(array('type' => 'someType')));
+            ->will($this->returnValue(['type' => 'someType']));
 
-        $config = array(
+        $config = [
             'fileMimeTypeField' => '',
-            'fileSizeField'     => '',
-            'fileNameField'     => '',
-            'filePathField'     => 'someField',
-            'pathMethod'        => '',
-            'callback'          => '',
+            'fileSizeField' => '',
+            'fileNameField' => '',
+            'filePathField' => 'someField',
+            'pathMethod' => '',
+            'callback' => '',
             'filenameGenerator' => 'DateTime',
-            'maxSize'           => 0,
-            'allowedTypes'      => '',
-            'disallowedTypes'   => '',
-        );
+            'maxSize' => 0,
+            'allowedTypes' => '',
+            'disallowedTypes' => '',
+        ];
 
         Validator::validateConfiguration(
             $this->meta,
@@ -176,20 +163,20 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ->will($this->returnValue(new \ReflectionClass(new FakeEntity())));
         $this->meta->expects($this->any())
             ->method('getFieldMapping')
-            ->will($this->returnValue(array('type' => 'string')));
+            ->will($this->returnValue(['type' => 'string']));
 
-        $config = array(
+        $config = [
             'fileMimeTypeField' => '',
-            'fileSizeField'     => '',
-            'fileNameField'     => '',
-            'filePathField'     => 'someField',
-            'pathMethod'        => '',
-            'callback'          => '',
+            'fileSizeField' => '',
+            'fileNameField' => '',
+            'filePathField' => 'someField',
+            'pathMethod' => '',
+            'callback' => '',
             'filenameGenerator' => 'SHA1',
-            'maxSize'           => 0,
-            'allowedTypes'      => '',
-            'disallowedTypes'   => '',
-        );
+            'maxSize' => 0,
+            'allowedTypes' => '',
+            'disallowedTypes' => '',
+        ];
 
         Validator::validateConfiguration(
             $this->meta,
@@ -204,20 +191,20 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ->will($this->returnValue(new \ReflectionClass(new FakeEntity())));
         $this->meta->expects($this->any())
             ->method('getFieldMapping')
-            ->will($this->returnValue(array('type' => 'string')));
+            ->will($this->returnValue(['type' => 'string']));
 
-        $config = array(
+        $config = [
             'fileMimeTypeField' => '',
-            'fileSizeField'     => '',
-            'fileNameField'     => '',
-            'filePathField'     => 'someField',
-            'pathMethod'        => '',
-            'callback'          => '',
+            'fileSizeField' => '',
+            'fileNameField' => '',
+            'filePathField' => 'someField',
+            'pathMethod' => '',
+            'callback' => '',
             'filenameGenerator' => 'Gedmo\Uploadable\FilenameGenerator\FilenameGeneratorSha1',
-            'maxSize'           => 0,
-            'allowedTypes'      => '',
-            'disallowedTypes'   => '',
-        );
+            'maxSize' => 0,
+            'allowedTypes' => '',
+            'disallowedTypes' => '',
+        ];
 
         Validator::validateConfiguration(
             $this->meta,
@@ -225,25 +212,23 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @expectedException \Gedmo\Exception\InvalidMappingException
-     */
     public function test_validateConfiguration_ifMaxSizeIsLessThanZeroThenThrowException()
     {
+        $this->expectException('Gedmo\Exception\InvalidMappingException');
         $this->meta->expects($this->once())
             ->method('getReflectionClass')
             ->will($this->returnValue(new \ReflectionClass(new FakeEntity())));
 
-        $config = array(
+        $config = [
             'fileMimeTypeField' => 'someField',
-            'filePathField'     => 'someField',
-            'fileSizeField'     => '',
-            'pathMethod'        => '',
-            'callback'          => '',
-            'maxSize'           => -123,
-            'allowedTypes'      => '',
-            'disallowedTypes'   => '',
-        );
+            'filePathField' => 'someField',
+            'fileSizeField' => '',
+            'pathMethod' => '',
+            'callback' => '',
+            'maxSize' => -123,
+            'allowedTypes' => '',
+            'disallowedTypes' => '',
+        ];
 
         Validator::validateConfiguration(
             $this->meta,
@@ -251,27 +236,25 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @expectedException \Gedmo\Exception\InvalidMappingException
-     */
     public function test_validateConfiguration_ifAllowedTypesAndDisallowedTypesAreSetThenThrowException()
     {
+        $this->expectException('Gedmo\Exception\InvalidMappingException');
         $this->meta->expects($this->once())
             ->method('getReflectionClass')
             ->will($this->returnValue(new \ReflectionClass(new FakeEntity())));
 
         Validator::$enableMimeTypesConfigException = true;
 
-        $config = array(
+        $config = [
             'fileMimeTypeField' => 'someField',
-            'filePathField'     => 'someField',
-            'fileSizeField'     => '',
-            'pathMethod'        => '',
-            'callback'          => '',
-            'maxSize'           => 0,
-            'allowedTypes'      => 'text/plain',
-            'disallowedTypes'   => 'text/css',
-        );
+            'filePathField' => 'someField',
+            'fileSizeField' => '',
+            'pathMethod' => '',
+            'callback' => '',
+            'maxSize' => 0,
+            'allowedTypes' => 'text/plain',
+            'disallowedTypes' => 'text/css',
+        ];
 
         Validator::validateConfiguration(
             $this->meta,
