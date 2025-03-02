@@ -52,6 +52,13 @@ class SoftDeleteableListener extends MappedEventSubscriber
     public const POST_SOFT_DELETE = 'postSoftDelete';
 
     /**
+     * Objects soft-deleted on flush
+     *
+     * @var array<object>
+     */
+    private array $softDeletedObjects = [];
+
+    /**
      * @return string[]
      */
     public function getSubscribedEvents()
@@ -59,6 +66,7 @@ class SoftDeleteableListener extends MappedEventSubscriber
         return [
             'loadClassMetadata',
             'onFlush',
+            'postFlush',
         ];
     }
 
@@ -129,7 +137,26 @@ class SoftDeleteableListener extends MappedEventSubscriber
                         $postSoftDeleteEventArgs
                     );
                 }
+
+                $this->softDeletedObjects[] = $object;
             }
+        }
+    }
+
+    /**
+     * Detach soft-deleted objects from object manager.
+     *
+     * @return void
+     *
+     * @throws \Gedmo\Exception\InvalidArgumentException
+     */
+    public function postFlush(EventArgs $args)
+    {
+        $ea = $this->getEventAdapter($args);
+        $om = $ea->getObjectManager();
+        foreach ($this->softDeletedObjects as $index => $object) {
+            $om->detach($object);
+            unset($this->softDeletedObjects[$index]);
         }
     }
 
